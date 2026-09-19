@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZJT Studio · 多功能工具箱</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #232734;
+            --primary: #6c8cff;
+            --primary-glow: rgba(108, 140, 255, 0.25);
+            --green: #4ade80;
+            --amber: #fbbf24;
+            --red: #f87171;
+            --text: #e5e9f0;
+            --text-dim: #9aa3b2;
+            --border: #2a2f3d;
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse 60% 40% at 50% -10%, rgba(108, 140, 255, 0.08), transparent),
+                radial-gradient(ellipse 40% 30% at 90% 110%, rgba(108, 140, 255, 0.05), transparent);
+        }
+
+        /* 顶栏 */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: rgba(15, 17, 23, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .logo-badge {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #fff;
+        }
+        .status-pill {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; color: var(--green);
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            padding: 5px 12px; border-radius: 999px;
+        }
+        .status-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--green);
+            animation: pulse 1.6s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+            50% { opacity: 0.6; box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+        }
+
+        /* 主区 */
+        main { max-width: 1080px; margin: 0 auto; padding: 40px 24px; }
+
+        .hero { text-align: center; margin-bottom: 44px; }
+        .hero h1 {
+            font-size: 42px; font-weight: 800;
+            background: linear-gradient(135deg, #e5e9f0 30%, var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .hero p { color: var(--text-dim); margin-top: 12px; font-size: 16px; }
+
+        /* 工具网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 24px var(--primary-glow);
+        }
+        .card-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; margin-bottom: 14px;
+        }
+        .card h3 { font-size: 16px; margin-bottom: 6px; }
+        .card p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+        .card-tag {
+            position: absolute; top: 16px; right: 16px;
+            font-size: 11px; padding: 3px 8px; border-radius: 6px;
+            background: var(--surface2); color: var(--text-dim);
+        }
+
+        /* 工具区 */
+        .tool-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .tool-panel.active { display: block; }
+        .tool-panel h2 { font-size: 20px; margin-bottom: 16px; }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--primary);
+            color: #fff; border: none;
+            padding: 10px 20px; border-radius: 10px;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn:hover { filter: brightness(1.15); }
+        .btn.secondary { background: var(--surface2); color: var(--text); }
+        .btn.danger { background: rgba(248,113,113,0.15); color: var(--red); }
+
+        input, select, textarea {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+        label { display: block; font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
+        .row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .row > * { flex: 1; min-width: 120px; }
+
+        .result {
+            margin-top: 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            min-height: 40px;
+            display: none;
+        }
+        .result.show { display: block; }
+        .back-btn { margin-bottom: 20px; }
+
+        footer {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 13px;
+            padding: 30px 20px;
+            border-top: 1px solid var(--border);
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+
+        /* 动画 */
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 30px; }
+            main { padding: 24px 16px; }
+            header { padding: 14px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <div class="logo-badge">⚡</div>
+        <span>ZJT Studio</span>
+    </div>
+    <div class="status-pill"><span class="status-dot"></span> 在线 · 免费公网</div>
+</header>
+
+<main>
+    <div class="hero fade-in">
+        <h1>多功能工具箱</h1>
+        <p>轻量 · 免费 · 纯前端 · 隐私本地处理</p>
+    </div>
+
+    <!-- 工具网格 -->
+    <div class="grid" id="homeGrid">
+        <div class="card" data-tool="base64">
+            <div class="card-icon" style="background:rgba(108,140,255,0.15)">🔐</div>
+            <h3>Base64 编解码</h3>
+            <p>文本/图片 Base64 互相转换</p>
+            <span class="card-tag">工具</span>
+        </div>
+        <div class="card" data-tool="json">
+            <div class="card-icon" style="background:rgba(74,222,128,0.15)">{} </div>
+            <h3>JSON 格式化</h3>
+            <p>美化 / 压缩 / 校验 JSON</p>
+            <span class="card-tag">工具</span>
+        </div>
+        <div class="card" data-tool="hash">
+            <div class="card-icon" style="background:rgba(251,191,36,0.15)">#️⃣</div>
+            <h3>哈希计算</h3>
+            <p>SHA-1 / SHA-256 在线计算</p>
+            <span class="card-tag">工具</span>
+        </div>
+        <div class="card" data-tool="time">
+            <div class="card-icon" style="background:rgba(167,139,250,0.15)">⏰</div>
+            <h3>时间戳转换</h3>
+            <p>Unix 时间戳 ⇄ 日期时间</p>
+            <span class="card-tag">工具</span>
+        </div>
+        <div class="card" data-tool="qrcode">
+            <div class="card-icon" style="background:rgba(248,113,113,0.15)">▦</div>
+            <h3>二维码生成</h3>
+            <p>文本 / URL 转二维码</p>
+            <span class="card-tag">工具</span>
+        </div>
+        <div class="card" data-tool="uuid">
+            <div class="card-icon" style="background:rgba(45,212,191,0.15)">🧬</div>
+            <h3>UUID 生成器</h3>
+            <p>批量生成随机 UUID</p>
+            <span class="card-tag">工具</span>
+        </div>
+    </div>
+
+    <!-- Base64 工具 -->
+    <div class="tool-panel" id="tool-base64">
+        <button class="btn secondary back-btn" onclick="showHome()">← 返回</button>
+        <h2>🔐 Base64 编解码</h2>
+        <label>输入内容</label>
+        <textarea id="b64-input" rows="4" placeholder="输入文本…"></textarea>
+        <div class="row">
+            <button class="btn" onclick="b64Encode()">编码</button>
+            <button class="btn secondary" onclick="b64Decode()">解码</button>
+            <button class="btn secondary" onclick="copyResult()">复制结果</button>
+        </div>
+        <div class="result" id="b64-result"></div>
+    </div>
+
+    <!-- JSON 工具 -->
+    <div class="tool-panel" id="tool-json">
+        <button class="btn secondary back-btn" onclick="showHome()">← 返回</button>
+        <h2>{} JSON 格式化</h2>
+        <label>输入 JSON</label>
+        <textarea id="json-input" rows="6" placeholder='{"name":"test","value":123}'></textarea>
+        <div class="row">
+            <button class="btn" onclick="jsonPretty()">美化</button>
+            <button class="btn secondary" onclick="jsonMinify()">压缩</button>
+            <button class="btn secondary" onclick="copyResult()">复制结果</button>
+        </div>
+        <div class="result" id="json-result"></div>
+    </div>
+
+    <!-- 哈希工具 -->
+    <div class="tool-panel" id="tool-hash">
+        <button class="btn secondary back-btn" onclick="showHome()">← 返回</button>
+        <h2>#️⃣ 哈希计算</h2>
+        <label>输入文本</label>
+        <textarea id="hash-input" rows="3" placeholder="输入要哈希的文本…"></textarea>
+        <button class="btn" onclick="computeHash()">计算 SHA-256</button>
+        <div class="result" id="hash-result"></div>
+    </div>
+
+    <!-- 时间戳工具 -->
+    <div class="tool-panel" id="tool-time">
+        <button class="btn secondary back-btn" onclick="showHome()">← 返回</button>
+        <h2>⏰ 时间戳转换</h2>
+        <div class="row">
+            <div>
+                <label>Unix 时间戳</label>
+                <input type="number" id="ts-input" placeholder="1700000000">
+            </div>
+            <div>
+                <label>日期时间</label>
+                <input type="text" id="dt-input" placeholder="2024-01-01 12:00:00">
+            </div>
+        </div>
+        <button class="btn" onclick="tsNow()">使用当前时间</button>
+        <div class="result" id="time-result"></div>
+    </div>
+
+    <!-- 二维码工具 -->
+    <div class="tool-panel" id="tool-qrcode">
+        <button class="btn secondary back-btn" onclick="showHome()">← 返回</button>
+        <h2>▦ 二维码生成</h2>
+        <label>输入内容</label>
+        <input type="text" id="qr-input" placeholder="https://example.com">
+        <button class="btn" onclick="genQR()">生成二维码</button>
+        <div class="result" id="qr-result"></div>
+    </div>
+
+    <!-- UUID 工具 -->
+    <div class="tool-panel" id="tool-uuid">
+        <button class="btn secondary back-btn" onclick="showHome()">← 返回</button>
+        <h2>🧬 UUID 生成器</h2>
+        <label>生成数量</label>
+        <input type="number" id="uuid-count" value="5" min="1" max="50">
+        <button class="btn" onclick="genUUID()">生成</button>
+        <div class="result" id="uuid-result"></div>
+    </div>
+</main>
+
+<footer>
+    <p>Powered by <a href="#">ZJT Studio</a> · 本站点通过免费内网穿透技术公网可达</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+    // 导航
+    function showHome() {
+        document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('homeGrid').style.display = 'grid';
+    }
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+            const tool = card.dataset.tool;
+            document.getElementById('homeGrid').style.display = 'none';
+            document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('tool-' + tool).classList.add('active');
+        });
+    });
+
+    // 通用
+    function setResult(id, text) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.classList.add('show');
+    }
+    function copyResult() {
+        const shown = document.querySelector('.result.show');
+        if (!shown) return;
+        navigator.clipboard.writeText(shown.textContent).then(() => alert('已复制！'));
+    }
+
+    // Base64
+    function b64Encode() {
+        const v = document.getElementById('b64-input').value;
+        setResult('b64-result', btoa(unescape(encodeURIComponent(v))));
+    }
+    function b64Decode() {
+        const v = document.getElementById('b64-input').value;
+        try { setResult('b64-result', decodeURIComponent(escape(atob(v.trim())))); }
+        catch (e) { setResult('b64-result', '⚠️ 解码失败：' + e.message); }
+    }
+
+    // JSON
+    function jsonPretty() {
+        const v = document.getElementById('json-input').value;
+        try { setResult('json-result', JSON.stringify(JSON.parse(v), null, 2)); }
+        catch (e) { setResult('json-result', '⚠️ JSON 无效：' + e.message); }
+    }
+    function jsonMinify() {
+        const v = document.getElementById('json-input').value;
+        try { setResult('json-result', JSON.stringify(JSON.parse(v))); }
+        catch (e) { setResult('json-result', '⚠️ JSON 无效：' + e.message); }
+    }
+
+    // Hash
+    async function computeHash() {
+        const v = document.getElementById('hash-input').value;
+        const data = new TextEncoder().encode(v);
+        const digest = await crypto.subtle.digest('SHA-256', data);
+        const hex = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+        setResult('hash-result', 'SHA-256:\n' + hex);
+    }
+
+    // 时间戳
+    function tsNow() {
+        const now = Math.floor(Date.now() / 1000);
+        const dt = new Date(now * 1000).toLocaleString('zh-CN');
+        setResult('time-result', `当前时间戳: ${now}\n当前时间: ${dt}`);
+    }
+    document.getElementById('ts-input')?.addEventListener('input', function() {
+        const ts = parseInt(this.value);
+        if (!isNaN(ts)) setResult('time-result', new Date(ts * 1000).toLocaleString('zh-CN'));
+    });
+    document.getElementById('dt-input')?.addEventListener('input', function() {
+        const d = new Date(this.value.replace(' ', 'T'));
+        if (!isNaN(d)) setResult('time-result', `Unix 时间戳: ${Math.floor(d.getTime() / 1000)}`);
+    });
+
+    // 二维码
+    function genQR() {
+        const v = document.getElementById('qr-input').value;
+        if (!v) return;
+        const el = document.getElementById('qr-result');
+        el.innerHTML = '';
+        try {
+            new QRCode(el, { text: v, width: 180, height: 180 });
+            el.classList.add('show');
+        } catch (e) { setResult('qr-result', '⚠️ 生成失败：' + e.message); }
+    }
+
+    // UUID
+    function genUUID() {
+        const n = parseInt(document.getElementById('uuid-count').value) || 5;
+        const uuids = [];
+        for (let i = 0; i < n; i++) {
+            uuids.push(crypto.randomUUID());
+        }
+        setResult('uuid-result', uuids.join('\n'));
+    }
+</script>
+</body>
+</html>
